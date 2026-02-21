@@ -37,7 +37,13 @@ export function Navbar() {
   return (
     <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-6">
       <div className="font-bold text-xl">
-       <Link href='/'>InvoicePro</Link> </div>
+       <Link href='/'>
+       <div className="flex justify-center items-center ">
+        <img src="./favicon.png" className="h-24 w-24 object-cover p-0 m-0" alt="" />
+        <h1 className="p-0 m-0">InvoicePro</h1>
+       </div>
+       
+       </Link> </div>
 
       <div className="hidden md:flex cursor-pointer gap-8 text-sm ">
        <Link href='/features'>Features</Link> 
