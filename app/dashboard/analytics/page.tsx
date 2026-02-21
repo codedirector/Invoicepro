@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 import { AnalyticsClient } from "./AnalyticsClient"
 
-
+export const dynamic = "force-dynamic"
 type MonthlyRevenue = {
   month: string
   revenue: number
