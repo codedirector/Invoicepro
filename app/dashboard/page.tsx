@@ -9,7 +9,7 @@ import { auth } from "@/lib/auth"
 
 export default async function DashboardPage() {
    const session = await auth.api.getSession({
-     headers: await headers() // you need to pass the headers object.
+     headers: await headers() 
  })
   if (!session) redirect("/login")
   //  console.log(session)
@@ -141,3 +141,5 @@ function UpgradeBanner({ plan }: { plan: string |undefined}) {
     </Card>
   )
 }
+
+export const dynamic = "force-dynamic"
