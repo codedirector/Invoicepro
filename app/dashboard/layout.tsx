@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { authClient } from "@/lib/auth-client"
 import { redirect } from "next/navigation"
 import { DashboardNav } from "@/components/dashboard/DashboardNav/page"

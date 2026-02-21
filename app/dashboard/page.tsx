@@ -142,4 +142,3 @@ function UpgradeBanner({ plan }: { plan: string |undefined}) {
   )
 }
 
-export const dynamic = "force-dynamic"

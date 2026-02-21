@@ -34,4 +34,3 @@ export default function ClientsPage() {
   )
 }
 
-export const dynamic = "force-dynamic"
