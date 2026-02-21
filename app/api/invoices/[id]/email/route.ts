@@ -6,11 +6,10 @@ import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 
 export async function POST(
-  _: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { id } = await params; // ✅ unwrap params
-
+  const id = params.id
   // console.log(id);
   const session = await authClient.getSession()
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
