@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+      
+    "target": "ES2023",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -31,4 +32,6 @@
     "**/*.mts"
   ],
   "exclude": ["node_modules"]
+  
 }
+
