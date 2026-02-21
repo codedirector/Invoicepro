@@ -1,14 +1,25 @@
-import { authClient } from "@/lib/auth-client"
+import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
-import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { AnalyticsClient } from "./AnalyticsClient"
 
+
+type MonthlyRevenue = {
+  month: string
+  revenue: number
+}
+
+type ClientRevenue = {
+  name: string
+  revenue: number
+}
+
 export default async function AnalyticsPage() {
-const session = await auth.api.getSession({
-     headers: await headers() // you need to pass the headers object.
- })
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
   if (!session) redirect("/login")
 
   const userId = session.user.id
@@ -19,18 +30,22 @@ const session = await auth.api.getSession({
       total: true,
       status: true,
       createdAt: true,
+      clientId: true,
     },
   })
 
-  // 📊 Monthly revenue
-  const monthlyRevenue = Object.values(
-    invoices.reduce((acc:any, inv) => {
+  
+  const monthlyRevenue: MonthlyRevenue[] = Object.values(
+    invoices.reduce<Record<string, MonthlyRevenue>>((acc, inv) => {
       const month = inv.createdAt.toLocaleString("default", {
         month: "short",
         year: "numeric",
       })
 
-      acc[month] ??= { month, revenue: 0 }
+      if (!acc[month]) {
+        acc[month] = { month, revenue: 0 }
+      }
+
       if (inv.status === "PAID") {
         acc[month].revenue += inv.total
       }
@@ -39,43 +54,47 @@ const session = await auth.api.getSession({
     }, {})
   )
 
-  const paidCount = invoices.filter(i => i.status === "PAID").length
-  const unpaidCount = invoices.filter(i => i.status === "UNPAID").length
-const clientRevenue = await prisma.invoice.groupBy({
-  by: ["clientId"],
-  where: {
-    userId,
-    status: "PAID",
-  },
-  _sum: {
-    total: true,
-  },
-})
+  // Count paid and unpaid invoices
+  const paidCount = invoices.filter((i) => i.status === "PAID").length
+  const unpaidCount = invoices.filter((i) => i.status === "UNPAID").length
 
-const clients = await prisma.client.findMany({
-  where: { userId },
-  select: {
-    id: true,
-    name: true,
-  },
-})
+  // Aggregate revenue by client
+  const clientRevenueRaw = await prisma.invoice.groupBy({
+    by: ["clientId"],
+    where: {
+      userId,
+      status: "PAID",
+    },
+    _sum: {
+      total: true,
+    },
+  })
 
-// Merge client names with revenue
-const clientRevenueData = clientRevenue.map((entry) => {
-  const client = clients.find((c) => c.id === entry.clientId)
+  // Fetch client names
+  const clients = await prisma.client.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      name: true,
+    },
+  })
 
-  return {
-    name: client?.name ?? "Unknown",
-    revenue: entry._sum.total ?? 0,
-  }
-})
+  // Merge client names with revenue
+  const clientRevenueData: ClientRevenue[] = clientRevenueRaw.map((entry) => {
+    const client = clients.find((c) => c.id === entry.clientId)
+    return {
+      name: client?.name ?? "Unknown",
+      revenue: entry._sum.total ?? 0,
+    }
+  })
 
+  // Render analytics component
   return (
     <AnalyticsClient
       monthlyRevenue={monthlyRevenue}
       paidCount={paidCount}
       unpaidCount={unpaidCount}
-        clientRevenue={clientRevenueData}
+      clientRevenue={clientRevenueData}
     />
   )
 }
