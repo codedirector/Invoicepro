@@ -71,3 +71,4 @@ export default function InvoicesPage() {
     </div>
   )
 }
+export const dynamic = "force-dynamic"
